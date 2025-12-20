@@ -25,5 +25,10 @@ public interface FriendRequestRepository extends JpaRepository<FriendRequest, UU
         "SELECT fr.sender FROM FriendRequest fr " +
         "WHERE fr.receiver.id = :userId AND fr.status = 'ACCEPTED'")
     List<User> findFriendsOfUser(@Param("userId") UUID userId);
+
+    @Query("SELECT fr.id FROM FriendRequest fr")
+    List<UUID> findAllRequests();
+
+    void deleteById(UUID id);
 }
 

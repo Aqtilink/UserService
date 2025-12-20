@@ -7,6 +7,8 @@ import com.aqtilink.user_service.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import com.aqtilink.user_service.messaging.NotificationPublisher;
+import com.aqtilink.user_service.dto.NotificationEventDTO;
 
 import java.util.UUID;
 import java.util.List;
@@ -15,10 +17,12 @@ import java.util.List;
 public class FriendRequestService {
     private final FriendRequestRepository requestRepo;
     private final UserRepository userRepo;
+    private final NotificationPublisher notificationService;
 
-    public FriendRequestService(FriendRequestRepository requestRepo,UserRepository userRepo) {
+    public FriendRequestService(FriendRequestRepository requestRepo,UserRepository userRepo, NotificationPublisher notificationPub) {
         this.requestRepo = requestRepo;
         this.userRepo = userRepo;
+        this.notificationService = notificationPub;
     }
 
     public FriendRequest send(UUID senderId, UUID receiverId) {
@@ -45,7 +49,14 @@ public class FriendRequestService {
                         HttpStatus.NOT_FOUND, "Receiver not found"));
 
         FriendRequest request = new FriendRequest(sender, receiver);
-        return requestRepo.save(request);
+        requestRepo.save(request);
+            NotificationEventDTO notification = new NotificationEventDTO();
+            notification.setId(request.getId());
+            notification.setEmail(receiver.getEmail());
+            notification.setSubject("New Friend Request");
+            notification.setMessage("You have a new friend request from " + sender.getFirstName()+ " " + sender.getLastName());
+            notificationService.publish(notification);
+        return request;
     }
 
     public void accept(UUID requestId) {
@@ -75,6 +86,16 @@ public class FriendRequestService {
 
     public List<User> findFriendsOfUser(UUID userId) {
         return requestRepo.findFriendsOfUser(userId);
+    }
+    public List<UUID> getAllRequests() {
+        return requestRepo.findAllRequests();
+    }
+    public void deleteRequest(UUID requestId) {
+        if (!requestRepo.existsById(requestId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Request not found");
+        }
+        requestRepo.deleteById(requestId);
     }
 
 }

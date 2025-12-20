@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.aqtilink</groupId>
 	<artifactId>user-service</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.0-SNAPSHOT</version>
 	<name>user-service</name>
 	<description>User service for app Aqtilink</description>
 	<url/>
@@ -58,6 +58,10 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
 		</dependency>
 
 	</dependencies>

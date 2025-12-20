@@ -6,9 +6,13 @@ import com.aqtilink.user_service.service.FriendRequestService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
+import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
-@RequestMapping("/friend-requests")
+@RequestMapping("/api/v1/friend-requests")
 public class FriendRequestController {
 
     private final FriendRequestService service;
@@ -17,7 +21,7 @@ public class FriendRequestController {
         this.service = service;
     }
 
-    @PostMapping
+    @PostMapping("/send")
     public FriendRequest send(@RequestParam UUID senderId, @RequestParam UUID receiverId) {
         return service.send(senderId, receiverId);
     }
@@ -35,4 +39,13 @@ public class FriendRequestController {
     public String getStatus(@PathVariable UUID id) {
         return service.getStatus(id);
     }
+    @GetMapping
+    public List<UUID> getAllRequsts() {
+        return service.getAllRequests();
+    }
+    @DeleteMapping("/{id}") 
+    public void deleteRequest(@PathVariable UUID id) {
+        service.deleteRequest(id);
+    }
+    
 }
