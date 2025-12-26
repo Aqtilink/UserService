@@ -23,6 +23,13 @@ spring:
     username: guest
     password: guest
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://ethical-anchovy-26.clerk.accounts.dev/.well-known/jwks.json
+
+
 management:
   endpoints:
     web:

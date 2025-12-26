@@ -15,6 +15,9 @@ public class User {
     @GeneratedValue
     private UUID id;
 
+    @Column(unique = true, nullable = false)
+    private String clerkId;
+
     @Column(nullable = false)
     private String firstName;
 
@@ -94,6 +97,12 @@ public class User {
 
     public void removeFriend(User user) {
         this.friends.remove(user);
+    }
+    public String getClerkId() {
+        return clerkId;
+    }
+    public void setClerkId(String clerkId) {
+        this.clerkId = clerkId;
     }
     
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import com.aqtilink.user_service.messaging.NotificationPublisher;
 import com.aqtilink.user_service.dto.NotificationEventDTO;
+import com.aqtilink.user_service.security.SecurityUtils;
 
 import java.util.UUID;
 import java.util.List;
@@ -25,28 +26,33 @@ public class FriendRequestService {
         this.notificationService = notificationPub;
     }
 
-    public FriendRequest send(UUID senderId, UUID receiverId) {
-        if (senderId.equals(receiverId)) {
+        public FriendRequest send(String receiverClerkId) {
+        String senderClerkId = SecurityUtils.getCurrentClerkId();
+        if (senderClerkId == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        }
+
+        if (senderClerkId.equals(receiverClerkId)) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Cannot send request to yourself"
             );
         }
 
-        if (requestRepo.existsBySenderIdAndReceiverId(senderId, receiverId)) {
+        if (requestRepo.existsBySenderClerkIdAndReceiverClerkId(senderClerkId, receiverClerkId)) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
                     "Friend request already exists"
             );
         }
 
-        User sender = userRepo.findById(senderId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Sender not found"));
+        User sender = userRepo.findByClerkId(senderClerkId)
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "Sender not found"));
 
-        User receiver = userRepo.findById(receiverId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Receiver not found"));
+        User receiver = userRepo.findByClerkId(receiverClerkId)
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "Receiver not found"));
 
         FriendRequest request = new FriendRequest(sender, receiver);
         requestRepo.save(request);
@@ -84,8 +90,8 @@ public class FriendRequestService {
         return request.getStatus();
     }
 
-    public List<User> findFriendsOfUser(UUID userId) {
-        return requestRepo.findFriendsOfUser(userId);
+    public List<User> findFriendsOfUserByClerkId(String clerkId) {
+        return requestRepo.findFriendsOfUserByClerkId(clerkId);
     }
     public List<UUID> getAllRequests() {
         return requestRepo.findAllRequests();

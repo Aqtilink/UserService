@@ -22,8 +22,8 @@ public class FriendRequestController {
     }
 
     @PostMapping("/send")
-    public FriendRequest send(@RequestParam UUID senderId, @RequestParam UUID receiverId) {
-        return service.send(senderId, receiverId);
+    public FriendRequest send(@RequestParam("receiverClerkId") String receiverClerkId) {
+        return service.send(receiverClerkId);
     }
 
     @PostMapping("/{id}/accept")

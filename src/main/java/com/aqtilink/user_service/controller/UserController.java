@@ -7,7 +7,6 @@ import com.aqtilink.user_service.dto.FriendDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
 import java.util.List;
 
 @RestController
@@ -27,8 +26,8 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User get(@PathVariable UUID id) {
-        return service.get(id);
+    public User get(@PathVariable("id") String clerkId) {
+        return service.getByClerkId(clerkId);
     }
 
     @GetMapping
@@ -36,24 +35,24 @@ public class UserController {
         return service.getAll();
     }
     @PutMapping("/{id}")
-    public User update(@PathVariable UUID id, @RequestBody User user) {
-        return service.update(id, user);
+    public User update(@PathVariable("id") String clerkId, @RequestBody User user) {
+        return service.updateByClerkId(clerkId, user);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID id) {
-        service.delete(id);
+    public void delete(@PathVariable("id") String clerkId) {
+        service.deleteByClerkId(clerkId);
     }
 
     @GetMapping("/{id}/email")
-    public String getEmail(@PathVariable UUID id) {
-        return service.getEmail(id);
+    public String getEmail(@PathVariable("id") String clerkId) {
+        return service.getEmailByClerkId(clerkId);
     }
 
     @GetMapping("/{id}/friends")
-    public List<FriendDTO> getFriends(@PathVariable UUID id) {
-        return service.getFriends(id);
+    public List<FriendDTO> getFriends(@PathVariable("id") String clerkId) {
+        return service.getFriendsByClerkId(clerkId);
     }
 }
 

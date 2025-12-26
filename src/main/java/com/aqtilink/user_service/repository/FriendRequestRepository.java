@@ -16,15 +16,16 @@ public interface FriendRequestRepository extends JpaRepository<FriendRequest, UU
 
     @Query("SELECT CASE WHEN COUNT(fr) > 0 THEN true ELSE false END " +
            "FROM FriendRequest fr " +
-           "WHERE fr.sender.id = :senderId AND fr.receiver.id = :receiverId")
-    boolean existsBySenderIdAndReceiverId(@Param("senderId") UUID senderId, @Param("receiverId") UUID receiverId);
+           "WHERE fr.sender.clerkId = :senderClerkId AND fr.receiver.clerkId = :receiverClerkId")
+    boolean existsBySenderClerkIdAndReceiverClerkId(@Param("senderClerkId") String senderClerkId,
+                                                    @Param("receiverClerkId") String receiverClerkId);
 
     @Query("SELECT fr.receiver FROM FriendRequest fr " +
-        "WHERE fr.sender.id = :userId AND fr.status = 'ACCEPTED' " +
+        "WHERE fr.sender.clerkId = :clerkId AND fr.status = 'ACCEPTED' " +
         "UNION " +
         "SELECT fr.sender FROM FriendRequest fr " +
-        "WHERE fr.receiver.id = :userId AND fr.status = 'ACCEPTED'")
-    List<User> findFriendsOfUser(@Param("userId") UUID userId);
+        "WHERE fr.receiver.clerkId = :clerkId AND fr.status = 'ACCEPTED'")
+    List<User> findFriendsOfUserByClerkId(@Param("clerkId") String clerkId);
 
     @Query("SELECT fr.id FROM FriendRequest fr")
     List<UUID> findAllRequests();
