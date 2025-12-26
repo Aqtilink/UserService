@@ -68,6 +68,15 @@ public class UserService {
         return requestrepo.findFriendsOfUserByClerkId(clerkId).stream().map(u -> new FriendDTO(u.getClerkId(), u.getFirstName(), u.getLastName(), u.getEmail())).toList();
     }
 
+    public List<FriendDTO> searchUsers(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return List.of();
+        }
+        return repo.searchByName(query.trim()).stream()
+                .map(u -> new FriendDTO(u.getClerkId(), u.getFirstName(), u.getLastName(), u.getEmail()))
+                .toList();
+    }
+
     public User getOrCreateByClerkId(String clerkId, String email, String firstName, String lastName) {
         Optional<User> existing = repo.findByClerkId(clerkId);
         if (existing.isPresent()) {

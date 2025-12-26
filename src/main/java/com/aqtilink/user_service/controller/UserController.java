@@ -3,6 +3,7 @@ package com.aqtilink.user_service.controller;
 import com.aqtilink.user_service.model.User;
 import com.aqtilink.user_service.service.UserService;
 import com.aqtilink.user_service.dto.FriendDTO;
+import com.aqtilink.user_service.security.SecurityUtils;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -52,6 +53,17 @@ public class UserController {
 
     @GetMapping("/{id}/friends")
     public List<FriendDTO> getFriends(@PathVariable("id") String clerkId) {
+        return service.getFriendsByClerkId(clerkId);
+    }
+
+    @GetMapping("/search")
+    public List<FriendDTO> searchUsers(@RequestParam("q") String query) {
+        return service.searchUsers(query);
+    }
+
+    @GetMapping("/me/friends")
+    public List<FriendDTO> getMyFriends() {
+        String clerkId = SecurityUtils.getCurrentClerkId();
         return service.getFriendsByClerkId(clerkId);
     }
 }

@@ -1,5 +1,6 @@
 package com.aqtilink.user_service.service;
 
+import com.aqtilink.user_service.dto.FriendRequestDTO;
 import com.aqtilink.user_service.model.FriendRequest;
 import com.aqtilink.user_service.model.User;
 import com.aqtilink.user_service.repository.FriendRequestRepository;
@@ -13,6 +14,7 @@ import com.aqtilink.user_service.security.SecurityUtils;
 
 import java.util.UUID;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FriendRequestService {
@@ -102,6 +104,19 @@ public class FriendRequestService {
                     HttpStatus.NOT_FOUND, "Request not found");
         }
         requestRepo.deleteById(requestId);
+    }
+
+    public List<FriendRequestDTO> getPendingRequests(String clerkId) {
+        return requestRepo.findPendingRequestsForUser(clerkId).stream()
+                .map(fr -> new FriendRequestDTO(
+                        fr.getId(),
+                        fr.getSender().getClerkId(),
+                        fr.getSender().getFirstName(),
+                        fr.getSender().getLastName(),
+                        fr.getSender().getEmail(),
+                        fr.getStatus()
+                ))
+                .collect(Collectors.toList());
     }
 
 }

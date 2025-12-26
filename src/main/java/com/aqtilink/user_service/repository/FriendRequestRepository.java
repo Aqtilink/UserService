@@ -16,7 +16,8 @@ public interface FriendRequestRepository extends JpaRepository<FriendRequest, UU
 
     @Query("SELECT CASE WHEN COUNT(fr) > 0 THEN true ELSE false END " +
            "FROM FriendRequest fr " +
-           "WHERE fr.sender.clerkId = :senderClerkId AND fr.receiver.clerkId = :receiverClerkId")
+           "WHERE (fr.sender.clerkId = :senderClerkId AND fr.receiver.clerkId = :receiverClerkId) " +
+           "OR (fr.sender.clerkId = :receiverClerkId AND fr.receiver.clerkId = :senderClerkId)")
     boolean existsBySenderClerkIdAndReceiverClerkId(@Param("senderClerkId") String senderClerkId,
                                                     @Param("receiverClerkId") String receiverClerkId);
 
@@ -29,6 +30,9 @@ public interface FriendRequestRepository extends JpaRepository<FriendRequest, UU
 
     @Query("SELECT fr.id FROM FriendRequest fr")
     List<UUID> findAllRequests();
+
+    @Query("SELECT fr FROM FriendRequest fr WHERE fr.receiver.clerkId = :clerkId AND fr.status = 'PENDING'")
+    List<FriendRequest> findPendingRequestsForUser(@Param("clerkId") String clerkId);
 
     void deleteById(UUID id);
 }

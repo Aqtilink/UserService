@@ -1,9 +1,12 @@
 package com.aqtilink.user_service.controller;
 
 
+import com.aqtilink.user_service.dto.FriendRequestDTO;
 import com.aqtilink.user_service.model.FriendRequest;
 import com.aqtilink.user_service.service.FriendRequestService;
+import com.aqtilink.user_service.security.SecurityUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.UUID;
 import java.util.List;
@@ -46,6 +49,12 @@ public class FriendRequestController {
     @DeleteMapping("/{id}") 
     public void deleteRequest(@PathVariable UUID id) {
         service.deleteRequest(id);
+    }
+
+    @GetMapping("/pending")
+    public List<FriendRequestDTO> getPendingRequests() {
+        String clerkId = SecurityUtils.getCurrentClerkId();
+        return service.getPendingRequests(clerkId);
     }
     
 }
