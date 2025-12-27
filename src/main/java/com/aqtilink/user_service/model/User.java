@@ -1,6 +1,10 @@
 package com.aqtilink.user_service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -11,14 +15,32 @@ public class User {
     @GeneratedValue
     private UUID id;
 
+    @Column(unique = true, nullable = false)
+    private String clerkId;
+
+    @Column(nullable = false)
     private String firstName;
+
+    @Column(nullable = false)
     private String lastName;
 
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
     private Integer age;
+
+    @Column(nullable = false)
     private String city;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_friends",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "friend_id")
+    )
+    @JsonIgnore
+    private Set<User> friends = new HashSet<>();
 
     public User(){}
 
@@ -30,7 +52,7 @@ public class User {
         this.city = city;
     }
 
-    public void setfirstName(String firstName){
+    public void setFirstName(String firstName){
         this.firstName = firstName;
     }
     public void setLastName(String lastName){
@@ -49,10 +71,10 @@ public class User {
     public UUID getId(){
         return id;
     }
-    public String getfirstName(){
+    public String getFirstName(){
         return firstName;
     }
-    public String getlastName(){
+    public String getLastName(){
         return lastName;
     }
     public Integer getAge(){
@@ -63,6 +85,24 @@ public class User {
     }
     public String getEmail(){
         return email;
+    }
+
+    public Set<User> getFriends(){
+        return friends;
+    }
+
+    public void addFriend(User user) {
+        this.friends.add(user);
+    }
+
+    public void removeFriend(User user) {
+        this.friends.remove(user);
+    }
+    public String getClerkId() {
+        return clerkId;
+    }
+    public void setClerkId(String clerkId) {
+        this.clerkId = clerkId;
     }
     
 }
