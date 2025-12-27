@@ -2,9 +2,11 @@ package com.aqtilink.user_service.repository;
 
 import com.aqtilink.user_service.model.FriendRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import com.aqtilink.user_service.model.User;
 
 import java.util.List;
@@ -35,5 +37,9 @@ public interface FriendRequestRepository extends JpaRepository<FriendRequest, UU
     List<FriendRequest> findPendingRequestsForUser(@Param("clerkId") String clerkId);
 
     void deleteById(UUID id);
-}
 
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM FriendRequest fr WHERE fr.sender.clerkId = :clerkId OR fr.receiver.clerkId = :clerkId")
+    void deleteAllByUserClerkId(@Param("clerkId") String clerkId);
+}

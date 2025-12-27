@@ -119,4 +119,8 @@ public class FriendRequestService {
                 .collect(Collectors.toList());
     }
 
+    public void deleteAllByUserClerkId(String clerkId) {
+        requestRepo.deleteAllByUserClerkId(clerkId);
+    }
+
 }

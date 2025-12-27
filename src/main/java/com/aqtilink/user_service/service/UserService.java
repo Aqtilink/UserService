@@ -3,7 +3,9 @@ package com.aqtilink.user_service.service;
 import com.aqtilink.user_service.dto.FriendDTO;
 import com.aqtilink.user_service.model.User;
 import com.aqtilink.user_service.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 import java.util.Optional;
@@ -17,10 +19,25 @@ public class UserService {
 
     private final UserRepository repo;
     private final FriendRequestService requestrepo;
+    private final RestTemplate restTemplate;
+    private final String activityServiceUrl;
+    private final String serviceApiKey;
+    private final String clerkSecretKey;
+    private final String clerkApiUrl;
 
-    public UserService(UserRepository repo, FriendRequestService requestrepo) {
+    public UserService(UserRepository repo, FriendRequestService requestrepo, 
+                      RestTemplate restTemplate, 
+                      @Value("${activity-service.url:http://localhost:8081}") String activityServiceUrl,
+                      @Value("${service.api-key}") String serviceApiKey,
+                      @Value("${clerk.secret-key:}") String clerkSecretKey,
+                      @Value("${clerk.api-url:https://api.clerk.com/v1}") String clerkApiUrl) {
         this.repo = repo;
         this.requestrepo = requestrepo;
+        this.restTemplate = restTemplate;
+        this.activityServiceUrl = activityServiceUrl;
+        this.serviceApiKey = serviceApiKey;
+        this.clerkSecretKey = clerkSecretKey;
+        this.clerkApiUrl = clerkApiUrl;
     }
 
     public User create(User user) {
@@ -57,7 +74,46 @@ public class UserService {
         if(!repo.existsByClerkId(clerkId)){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
+        
+        // Get the user first to clear relationships
+        User user = repo.findByClerkId(clerkId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        
+        // Clear bidirectional friendships
+        user.getFriends().clear();
+        repo.save(user);
+        
+        // Delete all friend requests involving this user
+        requestrepo.deleteAllByUserClerkId(clerkId);
+        
+        // Delete user's activities from activity-service
+        try {
+            String url = activityServiceUrl + "/api/v1/activities/user/" + clerkId;
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.set("X-Service-API-Key", serviceApiKey);
+            org.springframework.http.HttpEntity<Void> entity = new org.springframework.http.HttpEntity<>(headers);
+            restTemplate.exchange(url, org.springframework.http.HttpMethod.DELETE, entity, Void.class);
+        } catch (Exception e) {
+            // Log but continue - activities service might be down
+            System.err.println("Failed to delete activities for user " + clerkId + ": " + e.getMessage());
+        }
+        
+        // Finally delete the user
         repo.deleteByClerkId(clerkId);
+        
+        // Delete user from Clerk if secret key is configured
+        if (clerkSecretKey != null && !clerkSecretKey.isEmpty()) {
+            try {
+                String url = clerkApiUrl + "/users/" + clerkId;
+                org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+                headers.set("Authorization", "Bearer " + clerkSecretKey);
+                org.springframework.http.HttpEntity<Void> entity = new org.springframework.http.HttpEntity<>(headers);
+                restTemplate.exchange(url, org.springframework.http.HttpMethod.DELETE, entity, Void.class);
+            } catch (Exception e) {
+                // Log but don't fail - user already deleted from our DB
+                System.err.println("Failed to delete user from Clerk " + clerkId + ": " + e.getMessage());
+            }
+        }
     }
 
     public String getEmailByClerkId(String clerkId){
