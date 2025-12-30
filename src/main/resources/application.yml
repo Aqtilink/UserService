@@ -29,7 +29,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: ${JWK_SET_URI:https://clerk.aqtilink.com/.well-known/jwks.json}
+          jwk-set-uri: ${JWK_SET_URI:https://clerk.aqtilink.live/.well-known/jwks.json}
 
 management:
   endpoints:
