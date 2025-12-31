@@ -14,6 +14,11 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * Security configuration for User Service.
+ * Requires JWT authentication for user-facing endpoints.
+ * Requires API key for inter-service communication endpoints.
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -22,7 +27,7 @@ public class SecurityConfig {
     private String jwkSetUri;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, ClerkUserProvisioningFilter provisioningFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, ServiceApiKeyFilter apiKeyFilter, ClerkUserProvisioningFilter provisioningFilter) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
             .cors(Customizer.withDefaults())
@@ -33,10 +38,14 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/users").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/users/*/friends").permitAll() // Handled by API key filter
+                .requestMatchers(HttpMethod.GET, "/api/v1/users/*/email").permitAll() // Handled by API key filter
                 .requestMatchers("/api/v1/friend-requests/**").authenticated()
                 .requestMatchers("/api/v1/users/**").authenticated()
                 .anyRequest().authenticated()
             )
+            // Add API key filter before authorization
+            .addFilterBefore(apiKeyFilter, AuthorizationFilter.class)
             // Run after authorization so the SecurityContext already contains the JWT auth
             .addFilterAfter(provisioningFilter, AuthorizationFilter.class);
 
@@ -58,7 +67,7 @@ public class SecurityConfig {
         return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
     }
 
-    @Bean
+}    @Bean
     public ClerkUserProvisioningFilter clerkUserProvisioningFilter(UserService userService) {
         return new ClerkUserProvisioningFilter(userService);
     }
