@@ -40,6 +40,9 @@ public class UserController {
     @GetMapping("/me/friends")
     public List<FriendDTO> getMyFriends() {
         String clerkId = SecurityUtils.getCurrentClerkId();
+        if (clerkId == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        }
         return service.getFriendsByClerkId(clerkId);
     }
 
