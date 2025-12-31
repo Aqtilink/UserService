@@ -36,6 +36,33 @@ public class UserController {
     public List<User> getAll() {
         return service.getAll();
     }
+
+    @GetMapping("/search")
+    public List<FriendDTO> searchUsers(@RequestParam("q") String query) {
+        return service.searchUsers(query);
+    }
+
+    @GetMapping("/me/friends")
+    public List<FriendDTO> getMyFriends() {
+        String clerkId = SecurityUtils.getCurrentClerkId();
+        return service.getFriendsByClerkId(clerkId);
+    }
+
+    @GetMapping("/{id}")
+    public User getUser(@PathVariable("id") String clerkId) {
+        return service.getByClerkId(clerkId);
+    }
+
+    @GetMapping("/{id}/email")
+    public String getEmail(@PathVariable("id") String clerkId) {
+        return service.getEmailByClerkId(clerkId);
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<FriendDTO> getFriends(@PathVariable("id") String clerkId) {
+        return service.getFriendsByClerkId(clerkId);
+    }
+
     @PutMapping("/{id}")
     public User update(@PathVariable("id") String clerkId, @RequestBody User user) {
         // Allow users to update their own profile
@@ -50,27 +77,6 @@ public class UserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") String clerkId) {
         service.deleteByClerkId(clerkId);
-    }
-
-    @GetMapping("/{id}/email")
-    public String getEmail(@PathVariable("id") String clerkId) {
-        return service.getEmailByClerkId(clerkId);
-    }
-
-    @GetMapping("/{id}/friends")
-    public List<FriendDTO> getFriends(@PathVariable("id") String clerkId) {
-        return service.getFriendsByClerkId(clerkId);
-    }
-
-    @GetMapping("/search")
-    public List<FriendDTO> searchUsers(@RequestParam("q") String query) {
-        return service.searchUsers(query);
-    }
-
-    @GetMapping("/me/friends")
-    public List<FriendDTO> getMyFriends() {
-        String clerkId = SecurityUtils.getCurrentClerkId();
-        return service.getFriendsByClerkId(clerkId);
     }
 }
 
