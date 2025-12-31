@@ -27,11 +27,6 @@ public class UserController {
         return service.create(user);
     }
 
-    @GetMapping("/{id}")
-    public User get(@PathVariable("id") String clerkId) {
-        return service.getByClerkId(clerkId);
-    }
-
     @GetMapping
     public List<User> getAll() {
         return service.getAll();
