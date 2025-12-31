@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/users").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/users/me/**").authenticated() // /me endpoints for current user
                 .requestMatchers(HttpMethod.GET, "/api/v1/users/*/friends").authenticated() // Requires JWT or API key
                 .requestMatchers(HttpMethod.GET, "/api/v1/users/*/email").authenticated() // Requires JWT or API key
                 .requestMatchers("/api/v1/friend-requests/**").authenticated()
