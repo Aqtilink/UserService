@@ -61,5 +61,3 @@ public class ServiceApiKeyFilter extends OncePerRequestFilter {
         return path.contains("/api/v1/users/") && (path.contains("/friends") || path.endsWith("/email"));
     }
 }
-    }
-}
