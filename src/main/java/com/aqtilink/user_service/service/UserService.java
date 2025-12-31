@@ -120,8 +120,26 @@ public class UserService {
         return getByClerkId(clerkId).getEmail();
     }
     public List<FriendDTO> getFriendsByClerkId(String clerkId){
-        repo.findByClerkId(clerkId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-        return requestrepo.findFriendsOfUserByClerkId(clerkId).stream().map(u -> new FriendDTO(u.getClerkId(), u.getFirstName(), u.getLastName(), u.getEmail())).toList();
+        // Verify user exists first
+        repo.findByClerkId(clerkId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        
+        try {
+            List<User> friends = requestrepo.findFriendsOfUserByClerkId(clerkId);
+            return friends.stream()
+                    .map(u -> new FriendDTO(
+                            u.getClerkId(), 
+                            u.getFirstName(), 
+                            u.getLastName(), 
+                            u.getEmail()
+                    ))
+                    .toList();
+        } catch (Exception e) {
+            System.err.println("Error fetching friends for user " + clerkId + ": " + e.getMessage());
+            e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, 
+                    "Failed to fetch friends: " + e.getMessage(), e);
+        }
     }
 
     public List<FriendDTO> searchUsers(String query) {

@@ -7,6 +7,7 @@ import com.aqtilink.user_service.security.SecurityUtils;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -37,6 +38,11 @@ public class UserController {
     }
     @PutMapping("/{id}")
     public User update(@PathVariable("id") String clerkId, @RequestBody User user) {
+        // Allow users to update their own profile
+        String currentUserId = SecurityUtils.getCurrentClerkId();
+        if (currentUserId != null && !currentUserId.equals(clerkId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only update your own profile");
+        }
         return service.updateByClerkId(clerkId, user);
     }
 
