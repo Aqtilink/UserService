@@ -67,7 +67,7 @@ public class SecurityConfig {
         return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
     }
 
-}    @Bean
+    @Bean
     public ClerkUserProvisioningFilter clerkUserProvisioningFilter(UserService userService) {
         return new ClerkUserProvisioningFilter(userService);
     }
