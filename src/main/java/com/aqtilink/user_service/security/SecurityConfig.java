@@ -38,13 +38,13 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/users").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/users/*/friends").permitAll() // Handled by API key filter
-                .requestMatchers(HttpMethod.GET, "/api/v1/users/*/email").permitAll() // Handled by API key filter
+                .requestMatchers(HttpMethod.GET, "/api/v1/users/*/friends").authenticated() // Requires JWT or API key
+                .requestMatchers(HttpMethod.GET, "/api/v1/users/*/email").authenticated() // Requires JWT or API key
                 .requestMatchers("/api/v1/friend-requests/**").authenticated()
                 .requestMatchers("/api/v1/users/**").authenticated()
                 .anyRequest().authenticated()
             )
-            // Add API key filter before authorization
+            // Add API key filter before authorization to check for API key
             .addFilterBefore(apiKeyFilter, AuthorizationFilter.class)
             // Run after authorization so the SecurityContext already contains the JWT auth
             .addFilterAfter(provisioningFilter, AuthorizationFilter.class);
