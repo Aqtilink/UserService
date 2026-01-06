@@ -1,6 +1,7 @@
 package com.aqtilink.user_service.service;
 
 import com.aqtilink.user_service.dto.FriendDTO;
+import com.aqtilink.user_service.dto.UserSummaryDTO;
 import com.aqtilink.user_service.model.User;
 import com.aqtilink.user_service.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -148,6 +149,22 @@ public class UserService {
         }
         return repo.searchByName(query.trim()).stream()
                 .map(u -> new FriendDTO(u.getClerkId(), u.getFirstName(), u.getLastName(), u.getEmail()))
+                .toList();
+    }
+
+    public List<UserSummaryDTO> getUsersByClerkIds(List<String> clerkIds) {
+        if (clerkIds == null || clerkIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<User> users = repo.findByClerkIdIn(clerkIds);
+        return users.stream()
+                .map(u -> new UserSummaryDTO(
+                    u.getClerkId(),
+                    u.getFirstName(),
+                    u.getLastName(),
+                    u.getEmail()
+                ))
                 .toList();
     }
 

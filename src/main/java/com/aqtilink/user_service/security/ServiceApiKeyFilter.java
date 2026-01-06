@@ -1,6 +1,9 @@
 package com.aqtilink.user_service.security;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -9,6 +12,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Validates X-Service-API-Key header for inter-service communication.
@@ -36,7 +40,11 @@ public class ServiceApiKeyFilter extends OncePerRequestFilter {
             // 1. Valid API key is provided (service-to-service)
             // 2. JWT token is provided (user-to-service, will be validated by OAuth2)
             if (providedKey != null && providedKey.equals(expectedApiKey)) {
-                // Valid API key - allow service-to-service call
+                // Valid API key - authenticate as service
+                var auth = new PreAuthenticatedAuthenticationToken(
+                        "service", null, List.of(new SimpleGrantedAuthority("ROLE_SERVICE"))
+                );
+                SecurityContextHolder.getContext().setAuthentication(auth);
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -57,8 +65,7 @@ public class ServiceApiKeyFilter extends OncePerRequestFilter {
     }
 
     private boolean isServiceEndpoint(String path) {
-        // Service endpoints that can be called by either services or authenticated users
-        // Matches: /api/v1/users/{id}, /api/v1/users/{id}/friends, /api/v1/users/{id}/email
-        return path.matches(".*/api/v1/users/[^/]+(/friends|/email)?$");
+        // Treat all /api/v1/users/** as service endpoints so API key can authenticate batch and user lookups
+        return path.startsWith("/api/v1/users/");
     }
 }

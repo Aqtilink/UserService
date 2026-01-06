@@ -4,6 +4,7 @@ import com.aqtilink.user_service.model.User;
 import com.aqtilink.user_service.service.UserService;
 import com.aqtilink.user_service.dto.FriendDTO;
 import com.aqtilink.user_service.security.SecurityUtils;
+import com.aqtilink.user_service.dto.UserSummaryDTO;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -70,6 +71,11 @@ public class UserController {
         }
         return service.updateByClerkId(clerkId, user);
     }
+
+        @PostMapping("/batch")
+        public List<UserSummaryDTO> getUsersBatch(@RequestBody List<String> clerkIds) {
+            return service.getUsersByClerkIds(clerkIds);
+        }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

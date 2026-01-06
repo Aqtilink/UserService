@@ -41,7 +41,7 @@ activity-service:
   url: ${ACTIVITY_SERVICE_URL:http://localhost:8081}
 
 service:
-  api-key: ${SERVICE_API_KEY:dev-secret-key-change-in-production}
+  api-key: ${SERVICE_API_KEY:key-is-in-env}
 
 clerk:
   secret-key: ${CLERK_SECRET_KEY:}
