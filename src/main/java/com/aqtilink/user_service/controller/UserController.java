@@ -64,7 +64,6 @@ public class UserController {
 
     @PutMapping("/{id}")
     public User update(@PathVariable("id") String clerkId, @RequestBody User user) {
-        // Allow users to update their own profile
         String currentUserId = SecurityUtils.getCurrentClerkId();
         if (currentUserId != null && !currentUserId.equals(clerkId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only update your own profile");
@@ -72,10 +71,10 @@ public class UserController {
         return service.updateByClerkId(clerkId, user);
     }
 
-        @PostMapping("/batch")
-        public List<UserSummaryDTO> getUsersBatch(@RequestBody List<String> clerkIds) {
-            return service.getUsersByClerkIds(clerkIds);
-        }
+    @PostMapping("/batch")
+    public List<UserSummaryDTO> getUsersBatch(@RequestBody List<String> clerkIds) {
+        return service.getUsersByClerkIds(clerkIds);
+    }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

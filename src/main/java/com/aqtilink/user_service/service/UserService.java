@@ -76,18 +76,24 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
         
-        // Get the user first to clear relationships
         User user = repo.findByClerkId(clerkId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         
-        // Clear bidirectional friendships
         user.getFriends().clear();
         repo.save(user);
         
-        // Delete all friend requests involving this user
         requestrepo.deleteAllByUserClerkId(clerkId);
         
-        // Delete user's activities from activity-service
+        try {
+            String url = activityServiceUrl + "/api/v1/activities/participants/" + clerkId;
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.set("X-Service-API-Key", serviceApiKey);
+            org.springframework.http.HttpEntity<Void> entity = new org.springframework.http.HttpEntity<>(headers);
+            restTemplate.exchange(url, org.springframework.http.HttpMethod.DELETE, entity, Void.class);
+        } catch (Exception e) {
+            System.err.println("Failed to remove user from activities " + clerkId + ": " + e.getMessage());
+        }
+        
         try {
             String url = activityServiceUrl + "/api/v1/activities/user/" + clerkId;
             org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
@@ -95,14 +101,11 @@ public class UserService {
             org.springframework.http.HttpEntity<Void> entity = new org.springframework.http.HttpEntity<>(headers);
             restTemplate.exchange(url, org.springframework.http.HttpMethod.DELETE, entity, Void.class);
         } catch (Exception e) {
-            // Log but continue - activities service might be down
             System.err.println("Failed to delete activities for user " + clerkId + ": " + e.getMessage());
         }
         
-        // Finally delete the user
         repo.deleteByClerkId(clerkId);
         
-        // Delete user from Clerk if secret key is configured
         if (clerkSecretKey != null && !clerkSecretKey.isEmpty()) {
             try {
                 String url = clerkApiUrl + "/users/" + clerkId;
@@ -111,7 +114,6 @@ public class UserService {
                 org.springframework.http.HttpEntity<Void> entity = new org.springframework.http.HttpEntity<>(headers);
                 restTemplate.exchange(url, org.springframework.http.HttpMethod.DELETE, entity, Void.class);
             } catch (Exception e) {
-                // Log but don't fail - user already deleted from our DB
                 System.err.println("Failed to delete user from Clerk " + clerkId + ": " + e.getMessage());
             }
         }
@@ -121,7 +123,6 @@ public class UserService {
         return getByClerkId(clerkId).getEmail();
     }
     public List<FriendDTO> getFriendsByClerkId(String clerkId){
-        // Verify user exists first
         repo.findByClerkId(clerkId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         
@@ -178,8 +179,8 @@ public class UserService {
         newUser.setEmail(email != null ? email : clerkId + "@unknown.local");
         newUser.setFirstName(firstName != null ? firstName : "");
         newUser.setLastName(lastName != null ? lastName : "");
-        newUser.setAge(0); // default age when provisioning from token
-        newUser.setCity(""); // default city when provisioning from token
+        newUser.setAge(0);
+        newUser.setCity("");
         return repo.save(newUser);
     }
 
