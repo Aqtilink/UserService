@@ -12,6 +12,7 @@ import com.aqtilink.user_service.model.User;
 import java.util.List;
 import java.util.UUID;
 
+// Repository for managing friend requests
 
 @Repository
 public interface FriendRequestRepository extends JpaRepository<FriendRequest, UUID> {

@@ -14,11 +14,8 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
-/**
- * Security configuration for User Service.
- * Requires JWT authentication for user-facing endpoints.
- * Requires API key for inter-service communication endpoints.
- */
+// Security configuration class
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -45,12 +42,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/users/**").authenticated()
                 .anyRequest().authenticated()
             )
-            // Add API key filter before authorization to check for API key
             .addFilterBefore(apiKeyFilter, AuthorizationFilter.class)
-            // Run after authorization so the SecurityContext already contains the JWT auth
             .addFilterAfter(provisioningFilter, AuthorizationFilter.class);
 
-        // Only configure OAuth2 resource server if JWK URI is provided
         if (jwkSetUri != null && !jwkSetUri.isEmpty()) {
             http.oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwt -> jwt.decoder(jwtDecoder()))

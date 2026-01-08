@@ -4,6 +4,8 @@ import com.aqtilink.user_service.dto.NotificationEventDTO;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
+// Component for publishing notification events to RabbitMQ
+
 @Component
 public class NotificationPublisher {
 

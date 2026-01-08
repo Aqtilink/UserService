@@ -5,14 +5,14 @@ import com.aqtilink.user_service.dto.FriendRequestDTO;
 import com.aqtilink.user_service.model.FriendRequest;
 import com.aqtilink.user_service.service.FriendRequestService;
 import com.aqtilink.user_service.security.SecurityUtils;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.UUID;
 import java.util.List;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
+// Controller for managing friend requests
 
 @RestController
 @RequestMapping("/api/v1/friend-requests")
@@ -25,33 +25,30 @@ public class FriendRequestController {
     }
 
     @PostMapping("/send")
+    @ResponseStatus(HttpStatus.CREATED)
     public FriendRequest send(@RequestParam("receiverClerkId") String receiverClerkId) {
         return service.send(receiverClerkId);
     }
-
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PostMapping("/{id}/accept")
     public void accept(@PathVariable UUID id) {
         service.accept(id);
     }
 
     @PostMapping("/{id}/reject")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void reject(@PathVariable UUID id) {
         service.reject(id);
     }
-    @GetMapping("/{id}") 
-    public String getStatus(@PathVariable UUID id) {
-        return service.getStatus(id);
-    }
-    @GetMapping
-    public List<UUID> getAllRequsts() {
-        return service.getAllRequests();
-    }
+
     @DeleteMapping("/{id}") 
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteRequest(@PathVariable UUID id) {
         service.deleteRequest(id);
     }
 
     @GetMapping("/pending")
+    @ResponseStatus(HttpStatus.OK)
     public List<FriendRequestDTO> getPendingRequests() {
         String clerkId = SecurityUtils.getCurrentClerkId();
         return service.getPendingRequests(clerkId);

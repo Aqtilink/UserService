@@ -14,12 +14,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Validates X-Service-API-Key header for inter-service communication.
- * Allows requests with either:
- * 1. Valid X-Service-API-Key header (service-to-service)
- * 2. Valid JWT token in Authorization header (user-to-service)
- */
+// Filter to authenticate service-to-service requests using an API key
+
 @Component
 public class ServiceApiKeyFilter extends OncePerRequestFilter {
 
@@ -30,17 +26,12 @@ public class ServiceApiKeyFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         
-        // Check if this is a service-to-service endpoint
         String path = request.getRequestURI();
         if (isServiceEndpoint(path)) {
             String providedKey = request.getHeader("X-Service-API-Key");
             String authHeader = request.getHeader("Authorization");
             
-            // Allow if either:
-            // 1. Valid API key is provided (service-to-service)
-            // 2. JWT token is provided (user-to-service, will be validated by OAuth2)
             if (providedKey != null && providedKey.equals(expectedApiKey)) {
-                // Valid API key - authenticate as service
                 var auth = new PreAuthenticatedAuthenticationToken(
                         "service", null, List.of(new SimpleGrantedAuthority("ROLE_SERVICE"))
                 );
@@ -50,12 +41,10 @@ public class ServiceApiKeyFilter extends OncePerRequestFilter {
             }
             
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                // JWT token provided - let the OAuth2 filter handle validation
                 filterChain.doFilter(request, response);
                 return;
             }
             
-            // Neither valid API key nor JWT token - reject
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Invalid or missing authentication (API Key or JWT)");
             return;
@@ -65,7 +54,6 @@ public class ServiceApiKeyFilter extends OncePerRequestFilter {
     }
 
     private boolean isServiceEndpoint(String path) {
-        // Treat all /api/v1/users/** as service endpoints so API key can authenticate batch and user lookups
         return path.startsWith("/api/v1/users/");
     }
 }

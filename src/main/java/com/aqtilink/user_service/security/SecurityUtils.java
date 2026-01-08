@@ -4,12 +4,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 
+// Utility class for security-related operations
+
 public class SecurityUtils {
 
     public static String getCurrentClerkId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !(auth.getPrincipal() instanceof Jwt jwt)) return null;
-        return jwt.getSubject(); // Clerk user ID
+        return jwt.getSubject(); 
     }
 
     public static String getCurrentEmail() {

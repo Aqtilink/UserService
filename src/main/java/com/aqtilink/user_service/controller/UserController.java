@@ -12,6 +12,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
+// Controller for managing users
+
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
@@ -22,23 +24,14 @@ public class UserController {
         this.service = service;
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public User create(@RequestBody User user) {
-        return service.create(user);
-    }
-
-    @GetMapping
-    public List<User> getAll() {
-        return service.getAll();
-    }
-
     @GetMapping("/search")
+    @ResponseStatus(HttpStatus.OK)
     public List<FriendDTO> searchUsers(@RequestParam("q") String query) {
         return service.searchUsers(query);
     }
 
     @GetMapping("/me/friends")
+    @ResponseStatus(HttpStatus.OK)
     public List<FriendDTO> getMyFriends() {
         String clerkId = SecurityUtils.getCurrentClerkId();
         if (clerkId == null) {
@@ -48,21 +41,19 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public User getUser(@PathVariable("id") String clerkId) {
         return service.getByClerkId(clerkId);
     }
 
-    @GetMapping("/{id}/email")
-    public String getEmail(@PathVariable("id") String clerkId) {
-        return service.getEmailByClerkId(clerkId);
-    }
-
     @GetMapping("/{id}/friends")
+    @ResponseStatus(HttpStatus.OK)
     public List<FriendDTO> getFriends(@PathVariable("id") String clerkId) {
         return service.getFriendsByClerkId(clerkId);
     }
 
     @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public User update(@PathVariable("id") String clerkId, @RequestBody User user) {
         String currentUserId = SecurityUtils.getCurrentClerkId();
         if (currentUserId != null && !currentUserId.equals(clerkId)) {
@@ -72,6 +63,7 @@ public class UserController {
     }
 
     @PostMapping("/batch")
+    @ResponseStatus(HttpStatus.OK)
     public List<UserSummaryDTO> getUsersBatch(@RequestBody List<String> clerkIds) {
         return service.getUsersByClerkIds(clerkIds);
     }

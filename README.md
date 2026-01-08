@@ -45,36 +45,12 @@ user-service/
 
 ### User Management
 
-#### Create User
-```
-POST /api/v1/users
-Content-Type: application/json
-
-Request Body:
-{
-  "clerkId": "user_123",
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john@example.com",
-  "age": 28,
-  "city": "Ljubljana"
-}
-
-Response: User (201 Created)
-```
-
 #### Get User
 ```
 GET /api/v1/users/{clerkId}
 
 Response: User
-```
-
-#### Get User Email
-```
-GET /api/v1/users/{clerkId}/email
-
-Response: "user@example.com"
+Status Code: 200 OK
 ```
 
 #### Update User
@@ -90,20 +66,14 @@ Request Body:
 }
 
 Response: User
+Status Code: 200 OK
 ```
 
 #### Delete User
 ```
 DELETE /api/v1/users/{clerkId}
 
-Response: 204 No Content
-```
-
-#### Get All Users
-```
-GET /api/v1/users
-
-Response: List<User>
+Status Code: 204 No Content
 ```
 
 #### Search Users
@@ -111,6 +81,7 @@ Response: List<User>
 GET /api/v1/users/search?q={query}
 
 Response: List<FriendDTO>
+Status Code: 200 OK
 ```
 
 ### Friend Management
@@ -120,6 +91,7 @@ Response: List<FriendDTO>
 GET /api/v1/users/{clerkId}/friends
 
 Response: List<FriendDTO>
+Status Code: 200 OK
 ```
 
 #### Get Current User's Friends
@@ -127,6 +99,7 @@ Response: List<FriendDTO>
 GET /api/v1/users/me/friends
 
 Response: List<FriendDTO>
+Status Code: 200 OK
 ```
 
 #### Get Users Batch
@@ -137,6 +110,7 @@ Content-Type: application/json
 Request Body: ["clerk-id-1", "clerk-id-2", ...]
 
 Response: List<UserSummaryDTO>
+Status Code: 200 OK
 ```
 
 ### Friend Requests
@@ -145,7 +119,8 @@ Response: List<UserSummaryDTO>
 ```
 POST /api/v1/friend-requests/send?receiverClerkId={clerkId}
 
-Response: FriendRequest (201 Created)
+Response: FriendRequest
+Status Code: 201 Created
 ```
 
 #### Get Pending Requests
@@ -153,41 +128,28 @@ Response: FriendRequest (201 Created)
 GET /api/v1/friend-requests/pending
 
 Response: List<FriendRequestDTO>
+Status Code: 200 OK
 ```
 
 #### Accept Friend Request
 ```
 POST /api/v1/friend-requests/{requestId}/accept
 
-Response: 200 OK
+Status Code: 204 No Content
 ```
 
 #### Reject Friend Request
 ```
 POST /api/v1/friend-requests/{requestId}/reject
 
-Response: 200 OK
-```
-
-#### Get Friend Request Status
-```
-GET /api/v1/friend-requests/{requestId}
-
-Response: "PENDING" | "ACCEPTED" | "REJECTED"
+Status Code: 204 No Content
 ```
 
 #### Delete Friend Request
 ```
 DELETE /api/v1/friend-requests/{requestId}
 
-Response: 204 No Content
-```
-
-#### Get All Friend Requests
-```
-GET /api/v1/friend-requests
-
-Response: List<UUID>
+Status Code: 204 No Content
 ```
 
 ## Data Models

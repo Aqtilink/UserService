@@ -30,13 +30,8 @@ public class FriendRequest {
         this.receiver = receiver;
     }
 
-    public void accept() {
-        this.status = "ACCEPTED";
-    }
-
-    public void reject() {
-        this.status = "REJECTED";
-    }
+    public void accept() {this.status = "ACCEPTED";}
+    public void reject() {this.status = "REJECTED";}
 
     // getters
     public UUID getId() { return id; }

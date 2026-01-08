@@ -1,7 +1,7 @@
 package com.aqtilink.user_service.dto;
 
 public class FriendDTO {
-    private String id; // Clerk ID
+    private String id;
     private String firstName;
     private String lastName;
     private String email;

@@ -16,6 +16,8 @@ import java.util.UUID;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// Service for managing friend requests
+
 @Service
 public class FriendRequestService {
     private final FriendRequestRepository requestRepo;

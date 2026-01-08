@@ -11,9 +11,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
-/**
- * Ensures a local user record exists for the authenticated Clerk user.
- */
+// Filter that provisions a user in the local database upon first authentication via Clerk
+
 public class ClerkUserProvisioningFilter extends OncePerRequestFilter {
 
     private final UserService userService;
@@ -29,7 +28,6 @@ public class ClerkUserProvisioningFilter extends OncePerRequestFilter {
         if (authentication instanceof JwtAuthenticationToken && authentication.isAuthenticated()) {
             String clerkId = SecurityUtils.getCurrentClerkId();
             if (clerkId != null) {
-                // Use claims to populate best-effort user profile when first seen
                 String email = SecurityUtils.getCurrentEmail();
                 String firstName = SecurityUtils.getCurrentFirstName();
                 String lastName = SecurityUtils.getCurrentLastName();
