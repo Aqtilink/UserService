@@ -34,6 +34,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                .requestMatchers("/user-docs/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/users").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/users/me/**").authenticated() // /me endpoints for current user
                 .requestMatchers(HttpMethod.GET, "/api/v1/users/*/friends").authenticated() // Requires JWT or API key

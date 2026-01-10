@@ -37,6 +37,12 @@ management:
       exposure:
         include: ${ACTUATOR_ENDPOINTS:health,info}
 
+springdoc:
+  swagger-ui:
+    path: /user-docs/swagger-ui.html
+  api-docs:
+    path: /user-docs/v3/api-docs
+
 activity-service:
   url: ${ACTIVITY_SERVICE_URL:http://localhost:8081}
 
