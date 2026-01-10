@@ -37,15 +37,22 @@ jobs:
       - name: Install kubectl
         uses: azure/setup-kubectl@v3
         with:
-          version: 'latest'
-      
-      - name: Configure kubectl
+          version: latest
+
+      - name: Auth (Workload Identity)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Get GKE credentials
+        uses: google-github-actions/get-gke-credentials@v1
+        with:
+          cluster_name: ${{ secrets.GKE_CLUSTER }}
+          location: ${{ secrets.GKE_LOCATION }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Rollout
         run: |
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
-          chmod 600 $HOME/.kube/config
-      
-      - name: Deploy to Kubernetes
-        run: |
-          kubectl rollout restart deployment/user-service -n aqtilink
-          kubectl rollout status deployment/user-service -n aqtilink --timeout=5m
+          kubectl rollout restart deployment/activity-service -n aqtilink
+          kubectl rollout status deployment/activity-service -n aqtilink --timeout=5m
